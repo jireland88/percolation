@@ -15,40 +15,43 @@ class Percolation(object):
     def update_lattice(self, i, j, val):
         self.lattice[i][j] = val
 
-    def is_path_rec(self, row, col, visited):
-        # check for success
-        if col == self.n-1: return True, visited
+    def check_neighbours(self, row, col):
+        to_check = []
 
-        # check if already visited
-        if visited[row][col] == 1:
-            return False, visited
-        else:
-            visited[row][col] = 1
-
-        # check for neighbours
         if row - 1 > 0 and self.lattice[row-1][col] == 1:
-            success, visited = self.is_path_rec(row-1, col, visited)
-            if success: return True, visited
+            to_check.append([row-1, col])
         if row + 1 < self.n and self.lattice[row+1][col] == 1:
-            success, visited = self.is_path_rec(row+1, col, visited)
-            if success: return True, visited
+            to_check.append([row+1, col])
         if col - 1 > 0 and self.lattice[row][col-1] == 1:
-            success, visited = self.is_path_rec(row, col-1, visited)
-            if success: return True, visited
+            to_check.append([row, col-1])
         if col + 1< self.n and self.lattice[row][col+1] == 1:
-            success, visited = self.is_path_rec(row, col+1, visited)
-            if success: return True, visited
+            to_check.append([row, col+1])
 
-        # return False if no success
-        return False, visited
+        return to_check
 
     def is_path(self):
         visited = np.zeros((self.n, self.n))
 
+        def is_path_rec(row, col):
+            # check for success
+            if col == self.n-1: return True
+
+            # check if already visited
+            if visited[row][col] == 1:
+                return False
+            else:
+                visited[row][col] = 1
+
+            # check for neighbours
+            for n in self.check_neighbours(row, col):
+                if is_path_rec(n[0], n[1]): return True
+
+            # return False if no success
+            return False
+
         for i in range(0, self.n):
             if self.lattice[i][0] == 1:
-                success, visited = self.is_path_rec(i, 0, visited)
-                if success: return True
+                if is_path_rec(i, 0): return True
 
         return False
 
@@ -69,6 +72,7 @@ class Percolation(object):
                 n_True += 1
         return n_True / iter
 
+
     def is_centre_path(self):
         visited = np.zeros((self.n, self.n))
 
@@ -81,18 +85,8 @@ class Percolation(object):
             else:
                 visited[row][col] = 1
 
-            if row - 1 > 0 and self.lattice[row-1][col] == 1:
-                success = is_centre_path_rec(row-1, col)
-                if success: return True
-            if row + 1 < self.n and self.lattice[row+1][col] == 1:
-                success = is_centre_path_rec(row+1, col)
-                if success: return True
-            if col - 1 > 0 and self.lattice[row][col-1] == 1:
-                success= is_centre_path_rec(row, col-1)
-                if success: return True
-            if col + 1< self.n and self.lattice[row][col+1] == 1:
-                success = is_centre_path_rec(row, col+1)
-                if success: return True
+            for n in self.check_neighbours(row, col):
+                if is_centre_path_rec(n[0], n[1]): return True
 
             return False
 
@@ -113,81 +107,24 @@ class Percolation(object):
                 n_True += 1
         return n_True / iter
 
-
-
 class TriPercolation(Percolation):
-    def is_path_rec(self, row, col, visited):
-        # check for success
-        if col == self.n-1: return True, visited
+    def check_neighbours(self, row, col):
+        to_check = []
 
-        # check if already visited
-        if visited[row][col] == 1:
-            return False, visited
-        else:
-            visited[row][col] = 1
-
-        # check for neighbours
         if row - 1 > 0 and self.lattice[row-1][col] == 1:
-            success, visited = self.is_path_rec(row-1, col, visited)
-            if success: return True, visited
+            to_check.append([row-1, col])
         if row + 1 < self.n and self.lattice[row+1][col] == 1:
-            success, visited = self.is_path_rec(row+1, col, visited)
-            if success: return True, visited
+            to_check.append([row+1, col])
         if col - 1 > 0 and self.lattice[row][col-1] == 1:
-            success, visited = self.is_path_rec(row, col-1, visited)
-            if success: return True, visited
-        if col + 1< self.n and self.lattice[row][col+1] == 1:
-            success, visited = self.is_path_rec(row, col+1, visited)
-            if success: return True, visited
+            to_check.append([row, col-1])
+        if col + 1 < self.n and self.lattice[row][col+1] == 1:
+            to_check.append([row, col+1])
         if col + 1 < self.n and row + 1 < self.n and self.lattice[row+1][col+1] == 1:
-            success, visited = self.is_path_rec(row+1, col+1, visited)
-            if success: return True, visited
+            to_check.append([row+1, col+1])
         if col - 1 > 0 and row - 1 > 0 and self.lattice[row-1][col-1] == 1:
-            success, visited = self.is_path_rec(row-1, col-1, visited)
-            if success: return True, visited
+            to_check.append([row-1, col-1])
 
-        # return False if no success
-        return False, visited
-
-    def is_centre_path(self):
-        visited = np.zeros((self.n, self.n))
-
-        def is_centre_path_rec(row,col):
-            if col in [0,self.n-1] or row in [0,self.n-1]: return True
-
-            # check if already visited
-            if visited[row][col] == 1:
-                return False, visited
-            else:
-                visited[row][col] = 1
-
-            if row - 1 > 0 and self.lattice[row-1][col] == 1:
-                success = is_centre_path_rec(row-1, col)
-                if success: return True
-            if row + 1 < self.n and self.lattice[row+1][col] == 1:
-                success = is_centre_path_rec(row+1, col)
-                if success: return True
-            if col - 1 > 0 and self.lattice[row][col-1] == 1:
-                success= is_centre_path_rec(row, col-1)
-                if success: return True
-            if col + 1< self.n and self.lattice[row][col+1] == 1:
-                success = is_centre_path_rec(row, col+1)
-                if success: return True
-            if col + 1 < self.n and row + 1 < self.n and self.lattice[row+1][col+1] == 1:
-                success = is_centre_path_rec(row+1, col+1)
-                if success: return True
-            if col - 1 > 0 and row - 1 > 0 and self.lattice[row-1][col-1] == 1:
-                success = is_centre_path_rec(row-1, col-1)
-                if success: return True
-
-            return False
-
-        if self.n % 2 == 0: return None
-        centre = int((self.n+1)/2)
-        if self.lattice[centre][centre] != 1:
-            return False
-        else:
-            return is_centre_path_rec(centre,centre)
+        return to_check
 
 class PercolationSophisticated(Percolation):
     def percolate(self, p):
@@ -263,25 +200,4 @@ class PercolationTools(object):
 
         regr = linear_model.LinearRegression()
         regr.fit(np.array(log_epsilons).reshape(-1, 1), np.array(log_G).reshape(-1, 1))
-        print(regr.coef_)
-
-
-
-#fig, ax = plt.subplots()
-
-#testing rafael
-#test anna
-
-#P = Percolation(np.zeros((10,10)))
-#P.percolate(0.5)
-#PT = PercolationTools(P)
-#PT.display(ax)
-
-#plt.show()
-
-#PT.find_critical_value_g(50, 1)
-from sys import getrecursionlimit, setrecursionlimit
-setrecursionlimit(3500)
-p = Percolation(np.zeros((51,51)))
-PT = PercolationTools(p)
-PT.find_beta([0.1, 0.01, 0.001, 0.2, 0.02, 0.002], 5)
+        print(regr.coef_, regr.intercept_)
