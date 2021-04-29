@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn import linear_model
 
 class Percolation(object):
     def __init__(self, lattice):
@@ -68,11 +69,51 @@ class Percolation(object):
                 n_True += 1
         return n_True / iter
 
-    def is_centre_path_rec(self):
-
     def is_centre_path(self):
+        visited = np.zeros((self.n, self.n))
+
+        def is_centre_path_rec(row,col):
+            if col in [0,self.n-1] or row in [0,self.n-1]: return True
+
+            # check if already visited
+            if visited[row][col] == 1:
+                return False, visited
+            else:
+                visited[row][col] = 1
+
+            if row - 1 > 0 and self.lattice[row-1][col] == 1:
+                success = is_centre_path_rec(row-1, col)
+                if success: return True
+            if row + 1 < self.n and self.lattice[row+1][col] == 1:
+                success = is_centre_path_rec(row+1, col)
+                if success: return True
+            if col - 1 > 0 and self.lattice[row][col-1] == 1:
+                success= is_centre_path_rec(row, col-1)
+                if success: return True
+            if col + 1< self.n and self.lattice[row][col+1] == 1:
+                success = is_centre_path_rec(row, col+1)
+                if success: return True
+
+            return False
+
         if self.n % 2 == 0: return None
-        
+        centre = int((self.n+1)/2)
+        if self.lattice[centre][centre] != 1:
+            return False
+        else:
+            return is_centre_path_rec(centre,centre)
+
+    def simulate_centre(self, iter, p):
+        self.reset()
+        n_True = 0
+        for i in range(iter):
+            self.reset()
+            self.percolate(p)
+            if self.is_centre_path():
+                n_True += 1
+        return n_True / iter
+
+
 
 class TriPercolation(Percolation):
     def is_path_rec(self, row, col, visited):
@@ -108,6 +149,46 @@ class TriPercolation(Percolation):
         # return False if no success
         return False, visited
 
+    def is_centre_path(self):
+        visited = np.zeros((self.n, self.n))
+
+        def is_centre_path_rec(row,col):
+            if col in [0,self.n-1] or row in [0,self.n-1]: return True
+
+            # check if already visited
+            if visited[row][col] == 1:
+                return False, visited
+            else:
+                visited[row][col] = 1
+
+            if row - 1 > 0 and self.lattice[row-1][col] == 1:
+                success = is_centre_path_rec(row-1, col)
+                if success: return True
+            if row + 1 < self.n and self.lattice[row+1][col] == 1:
+                success = is_centre_path_rec(row+1, col)
+                if success: return True
+            if col - 1 > 0 and self.lattice[row][col-1] == 1:
+                success= is_centre_path_rec(row, col-1)
+                if success: return True
+            if col + 1< self.n and self.lattice[row][col+1] == 1:
+                success = is_centre_path_rec(row, col+1)
+                if success: return True
+            if col + 1 < self.n and row + 1 < self.n and self.lattice[row+1][col+1] == 1:
+                success = is_centre_path_rec(row+1, col+1)
+                if success: return True
+            if col - 1 > 0 and row - 1 > 0 and self.lattice[row-1][col-1] == 1:
+                success = is_centre_path_rec(row-1, col-1)
+                if success: return True
+
+            return False
+
+        if self.n % 2 == 0: return None
+        centre = int((self.n+1)/2)
+        if self.lattice[centre][centre] != 1:
+            return False
+        else:
+            return is_centre_path_rec(centre,centre)
+
 class PercolationSophisticated(Percolation):
     def percolate(self, p):
         self.reset()
@@ -116,7 +197,7 @@ class PercolationSophisticated(Percolation):
                 self.update_lattice(i,j,np.random.binomial(1, p)) # this needs to be a uniform random number
         return self.lattice
 
-    def find_critical_value():
+#    def find_critical_value():
 
 
 class PercolationTools(object):
@@ -134,6 +215,18 @@ class PercolationTools(object):
         # flipping array so output matches array
         if not no_print: print(self.perc_obj.lattice)
         ax.pcolormesh(X, Y, np.flipud(self.perc_obj.lattice))
+
+    def plot_centre_prob(self, iter, dp):
+        plt.figure()
+        m = 10**dp
+        xs = []
+        ys = []
+        for i in range(0, m):
+            r = self.perc_obj.simulate_centre(iter, i/m)
+            xs.append(i/m)
+            ys.append(r)
+        plt.plot(xs, ys, "-bo")
+        plt.show()
 
     def find_critical_value_g(self, iter, dp):
         plt.figure()
@@ -161,6 +254,19 @@ class PercolationTools(object):
         else:
             return self.find_critical_value_bs(iter_sim, iter_search, l, p, m+1)
 
+    def find_beta(self, epsilons, iter):
+        log_epsilons = []
+        log_G = []
+        for e in epsilons:
+            log_epsilons.append(np.log(e))
+            log_G.append(np.log(self.perc_obj.simulate_centre(iter, 0.5 + e)))
+
+        regr = linear_model.LinearRegression()
+        regr.fit(np.array(log_epsilons).reshape(-1, 1), np.array(log_G).reshape(-1, 1))
+        print(regr.coef_)
+
+
+
 #fig, ax = plt.subplots()
 
 #testing rafael
@@ -174,3 +280,8 @@ class PercolationTools(object):
 #plt.show()
 
 #PT.find_critical_value_g(50, 1)
+from sys import getrecursionlimit, setrecursionlimit
+setrecursionlimit(3500)
+p = Percolation(np.zeros((51,51)))
+PT = PercolationTools(p)
+PT.find_beta([0.1, 0.01, 0.001, 0.2, 0.02, 0.002], 5)
