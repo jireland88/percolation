@@ -127,11 +127,15 @@ class TriPercolation(Percolation):
         return to_check
 
 class PercolationSophisticated(Percolation):
-    def percolate(self, p):
+    def percolate_rand(self, p):
         self.reset()
         for i in range(0,self.n):
             for j in range(0,self.n):
-                self.update_lattice(i,j,np.random.binomial(1, p)) # this needs to be a uniform random number
+                self.update_lattice(i,j,random())
+                if self.lattice[i][j] < p:
+                    self.lattice[i][j] = 1
+                else:
+                    self.lattice[i][j] = 0
         return self.lattice
 
 #    def find_critical_value():
