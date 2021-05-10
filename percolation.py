@@ -140,7 +140,52 @@ class PercolationSophisticated(Percolation):
 
 #    def find_critical_value():
 
-
+class PercolationRobot(object):
+    def is_path():
+        A=self.lattice
+        for i in range(len(A[:,0])):
+            if A[i][0]==0:
+                x=0
+                y=i
+                state=1
+                while True:
+                    if state==1:
+                        if y!=0 and A[y-1][x]==1:
+                            y=y-1
+                            state=4
+                        else:
+                            state=2
+                    elif state==2:
+                        if x==len(A[0,:])-1:
+                            return True
+                        if A[y][x+1]==1:
+                            x=x+1
+                            state=1
+                        else:
+                            state=3
+                    elif state==3:
+                        if y!=len(A[:,0])-1:
+                            if A[y+1][x]==1:
+                                y=y+1
+                                state=2
+                            else:
+                                state=4
+                        else:
+                            state=4
+                    elif state==4:
+                        #print(str(x)+' = x '+str(y)+' = y')
+                            if x!=0:
+                                if A[y][x-1]==1:
+                                    x=x-1
+                                    state=3
+                                else:
+                                    state=1
+                            else:
+                                print('breaking')
+                                break
+                    else:
+                        print("there is no such state")
+        return False
 class PercolationTools(object):
     def __init__(self, perc_obj):
         self.perc_obj = perc_obj
