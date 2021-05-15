@@ -32,10 +32,10 @@ class TriangleNeighbours(Helper):
             to_check.append([row, col-1])
         if col + 1 < n and lattice[row][col+1] == 1:
             to_check.append([row, col+1])
-        if col + 1 < n and row - 1 < n and lattice[row+1][col+1] == 1:
-            to_check.append([row+1, col+1])
-        if col - 1 >= 0 and row + 1 >= 0 and lattice[row-1][col-1] == 1:
-            to_check.append([row-1, col-1])
+        if col + 1 < n and row - 1 < n and lattice[row-1][col+1] == 1:
+            to_check.append([row-1, col+1])
+        if col - 1 >= 0 and row + 1 < n and lattice[row+1][col-1] == 1:
+            to_check.append([row+1, col-1])
 
         return to_check
 

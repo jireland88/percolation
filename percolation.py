@@ -22,6 +22,8 @@ class Percolation(object):
 
     def is_centre_path(self): return self.PathFinder.is_centre_path(self.lattice, self.n)
 
+    def is_bottom_to_right_path(self, r): return self.PathFinder.is_bottom_to_right_path(self.lattice, self.n, r)
+
     def percolate(self, p):
         self.reset()
         for i in range(0,self.n):
@@ -49,19 +51,15 @@ class Percolation(object):
                 n_True += 1
         return n_True / iter
 
-class PercolationSophisticated(Percolation):
-    def percolate_rand(self, p):
+    def simulate_bottom_right(self, iter, p_c, r):
         self.reset()
-        for i in range(0,self.n):
-            for j in range(0,self.n):
-                self.update_lattice(i,j,random())
-                if self.lattice[i][j] < p:
-                    self.lattice[i][j] = 1
-                else:
-                    self.lattice[i][j] = 0
-        return self.lattice
-
-#    def find_critical_value():
+        n_True = 0
+        for i in range(iter):
+            self.reset()
+            self.percolate(p_c)
+            if self.is_bottom_to_right_path(r):
+                n_True += 1
+        return n_True / iter
 
 class PercolationTools(object):
     def __init__(self, perc_obj):

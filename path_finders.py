@@ -3,7 +3,7 @@ import numpy as np
 class PathFinder():
     def __init__(self, Helper):
         self.Helper = Helper
-    
+
     def is_path():
         raise NotImplementedError
 
@@ -39,7 +39,7 @@ class RecPathFinder(PathFinder):
                 if is_path_rec(i, 0): return True
 
         return False
-    
+
     def is_centre_path(self, lattice, n):
         visited = np.zeros((n, n))
 
@@ -65,6 +65,31 @@ class RecPathFinder(PathFinder):
         else:
             return is_centre_path_rec(centre,centre)
 
+    def is_bottom_to_right_path(self, lattice, n, r):
+        visited = np.zeros((n, n))
+
+        def is_bottom_to_right_path_rec(row,col):
+            if col == n-1 and row <= n*r:
+                return True
+
+            # check if already visited
+            if visited[row][col] == 1:
+                return False
+            else:
+                visited[row][col] = 1
+
+            for nb in self.Helper.check_neighbours(lattice, n, row, col):
+                if is_bottom_to_right_path_rec(nb[0], nb[1]): return True
+
+            return False
+
+
+        for i in range(0, n):
+            if lattice[n-1][i] == 1:
+                if is_bottom_to_right_path_rec(n-1, i): return True
+
+        return False
+
 class RobotPathFinder(PathFinder):
     def __init__(self, StateChooser):
         super().__init__(StateChooser)
@@ -85,7 +110,7 @@ class RobotPathFinder(PathFinder):
     def is_centre_path(self, lattice, n):
         A = lattice
         start=int((len(A[:,0])-1)/2)
-        if A[start][start]==1: 
+        if A[start][start]==1:
             x=start
             y=start
             save_x=None
@@ -101,7 +126,7 @@ class RobotPathFinder(PathFinder):
                         if c==1 or c==2:
                             state=4
                     else:
-                        if c==0: 
+                        if c==0:
                             save_x=x
                             save_y=y
                             c=1
@@ -117,7 +142,7 @@ class RobotPathFinder(PathFinder):
                             state=1
                     else:
                             state=3
-                        
+
                 elif state==3:
                     if c==2 and x==save_x and y<save_y:
                             c=0 # reseting to restart the loop
@@ -134,7 +159,7 @@ class RobotPathFinder(PathFinder):
                     if x!=0:
                         if A[y][x-1]==1:
                                 x=x-1
-                                
+
                                 state=3
                         else:
                             state=1
