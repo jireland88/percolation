@@ -79,7 +79,7 @@ class PercolationTools(object):
         if not no_print: print(self.perc_obj.lattice)
         ax.pcolormesh(X, Y, np.flipud(self.perc_obj.lattice))
 
-    def plot_centre_prob(self, iter, dp):
+    def plot_centre_prob(self, iter, dp, plot_G = False, G=None):
         plt.figure()
         m = 10**dp
         xs = []
@@ -89,6 +89,15 @@ class PercolationTools(object):
             xs.append(i/m)
             ys.append(r)
         plt.plot(xs, ys, "-bo")
+
+        if plot_G == True:
+            ps = np.linspace(0,1,100)
+            Gs = [G(p) for p in ps]
+            print(Gs[0:10])
+            plt.plot(ps, Gs, "-r")
+
+        plt.xlabel("p")
+        plt.ylabel("G(p)")
         plt.show()
 
     def find_critical_value_g(self, iter, dp):
@@ -101,6 +110,8 @@ class PercolationTools(object):
             xs.append(i/m)
             ys.append(r)
         plt.plot(xs, ys, "-bo")
+        plt.xlabel("p")
+        plt.ylabel("F(p)")
         plt.show()
 
     def find_critical_value_bs(self, iter_sim, iter_search, l=0, u=1, m=0):

@@ -9,13 +9,13 @@ class SquareNeighbours(Helper):
     def check_neighbours(self, lattice, n, row, col):
         to_check = []
 
-        if row - 1 > 0 and lattice[row-1][col] == 1:
+        if row - 1 >= 0 and lattice[row-1][col] == 1:
             to_check.append([row-1, col])
         if row + 1 < n and lattice[row+1][col] == 1:
             to_check.append([row+1, col])
-        if col - 1 > 0 and lattice[row][col-1] == 1:
+        if col - 1 >= 0 and lattice[row][col-1] == 1:
             to_check.append([row, col-1])
-        if col + 1< n and lattice[row][col+1] == 1:
+        if col + 1 < n and lattice[row][col+1] == 1:
             to_check.append([row, col+1])
 
         return to_check
@@ -24,17 +24,17 @@ class TriangleNeighbours(Helper):
     def check_neighbours(self, lattice, n, row, col):
         to_check = []
 
-        if row - 1 > 0 and lattice[row-1][col] == 1:
+        if row - 1 >= 0 and lattice[row-1][col] == 1:
             to_check.append([row-1, col])
         if row + 1 < n and lattice[row+1][col] == 1:
             to_check.append([row+1, col])
-        if col - 1 > 0 and lattice[row][col-1] == 1:
+        if col - 1 >= 0 and lattice[row][col-1] == 1:
             to_check.append([row, col-1])
         if col + 1 < n and lattice[row][col+1] == 1:
             to_check.append([row, col+1])
-        if col + 1 < n and row + 1 < n and lattice[row+1][col+1] == 1:
+        if col + 1 < n and row - 1 < n and lattice[row+1][col+1] == 1:
             to_check.append([row+1, col+1])
-        if col - 1 > 0 and row - 1 > 0 and lattice[row-1][col-1] == 1:
+        if col - 1 >= 0 and row + 1 >= 0 and lattice[row-1][col-1] == 1:
             to_check.append([row-1, col-1])
 
         return to_check
