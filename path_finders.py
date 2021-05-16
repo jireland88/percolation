@@ -1,6 +1,7 @@
 import numpy as np
 
 class PathFinder():
+    # Abstract Base Class for a Path Finder object
     def __init__(self, Helper):
         self.Helper = Helper
 
@@ -17,8 +18,9 @@ class RecPathFinder(PathFinder):
     def is_path(self, lattice, n):
         visited = np.zeros((n, n))
 
+        # recursive inner-function
         def is_path_rec(row, col):
-            # check for success
+            # check for success (on right-most column of lattice)
             if col == n-1: return True
 
             # check if already visited
@@ -27,13 +29,14 @@ class RecPathFinder(PathFinder):
             else:
                 visited[row][col] = 1
 
-            # check for neighbours
+            # check for neighbours, then run function on all neighbours
             for nb in self.Helper.check_neighbours(lattice, n, row, col):
                 if is_path_rec(nb[0], nb[1]): return True
 
             # return False if no success
             return False
 
+        # Check for path starting from all yellow squares in left-most column
         for i in range(0, n):
             if lattice[i][0] == 1:
                 if is_path_rec(i, 0): return True
@@ -44,6 +47,7 @@ class RecPathFinder(PathFinder):
         visited = np.zeros((n, n))
 
         def is_centre_path_rec(row,col):
+            # check if on the boundary
             if col == 0 or col == n-1 or row == 0 or row == n-1:
                 return True
 
@@ -58,8 +62,8 @@ class RecPathFinder(PathFinder):
 
             return False
 
-        if n % 2 == 0: return None
-        centre = int((n+1)/2)
+        if n % 2 == 0: return None # return None if we have an even-sided lattice
+        centre = int((n+1)/2) # otherwise we can compute the centre of the lattice
         if lattice[centre][centre] != 1:
             return False
         else:
@@ -69,6 +73,7 @@ class RecPathFinder(PathFinder):
         visited = np.zeros((n, n))
 
         def is_bottom_to_right_path_rec(row,col):
+            # check condition defined in Q10
             if col == n-1 and row <= n*r:
                 return True
 
@@ -79,11 +84,13 @@ class RecPathFinder(PathFinder):
                 visited[row][col] = 1
 
             for nb in self.Helper.check_neighbours(lattice, n, row, col):
-                if is_bottom_to_right_path_rec(nb[0], nb[1]): return True
+                # check if in "pink area" (see diagram) (col >= n-row)
+                if nb[1] >= n - nb[0]:
+                    if is_bottom_to_right_path_rec(nb[0], nb[1]): return True
 
             return False
 
-
+        # run on all sites at the bottom of the lattice
         for i in range(0, n):
             if lattice[n-1][i] == 1:
                 if is_bottom_to_right_path_rec(n-1, i): return True
@@ -108,6 +115,7 @@ class RobotPathFinder(PathFinder):
 
     # Only works with square lattice due to time-constraints
     def is_centre_path(self, lattice, n):
+        # For explanation of this function see Task 6 of the Jupyter notebook
         A = lattice
         start=int((len(A[:,0])-1)/2)
         if A[start][start]==1:

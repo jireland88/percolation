@@ -1,4 +1,6 @@
 class Helper():
+    # Abstract base class to define a helper to abstract lattice specific parts
+    # of the Path Finder Algorithms
     def check_neighbours(self, lattice, n, row, col):
         raise NotImplementedError
 
@@ -9,6 +11,7 @@ class SquareNeighbours(Helper):
     def check_neighbours(self, lattice, n, row, col):
         to_check = []
 
+        # Check up, down, left, right
         if row - 1 >= 0 and lattice[row-1][col] == 1:
             to_check.append([row-1, col])
         if row + 1 < n and lattice[row+1][col] == 1:
@@ -24,6 +27,7 @@ class TriangleNeighbours(Helper):
     def check_neighbours(self, lattice, n, row, col):
         to_check = []
 
+        # check up, down, left, right, up-right, and down-left
         if row - 1 >= 0 and lattice[row-1][col] == 1:
             to_check.append([row-1, col])
         if row + 1 < n and lattice[row+1][col] == 1:
@@ -43,6 +47,7 @@ class SquareStateChooser(Helper):
     def next_state(self, lattice, x, y, state):
         success = False
         path_exists = True
+        # states represent directions for code explanation see diagram in notebook
         if state==1:
             if y!=0 and lattice[y-1][x]==1:
                 y=y-1
@@ -82,6 +87,7 @@ class SquareStateChooser(Helper):
 
 class TriangleStateChooser(Helper):
     def next_state(self, lattice, x, y, state):
+        # same logic as previous but two additional states for the additional neighbours
         n = len(lattice[0,:])-1
         success = False
         path_exists = True

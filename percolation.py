@@ -10,6 +10,7 @@ class Percolation(object):
         self.n = self.lattice.shape[0]
         self.PathFinder = PathFinder
 
+        # Store initial lattice for when we reset
         self.init_lat = lattice
 
     def reset(self):
@@ -28,13 +29,15 @@ class Percolation(object):
         self.reset()
         for i in range(0,self.n):
             for j in range(0,self.n):
+                # np.random.binomial(1, p) = 1 w.p. p and 0 otherwise
                 self.update_lattice(i,j,np.random.binomial(1, p))
         return self.lattice
 
     def simulate(self, iter, p):
-        self.reset()
+        # simulates the value of F_n(p) using given number of iterations
         n_True = 0
         for i in range(iter):
+            # reset the lattice, create a random percolation and increment if there is a path
             self.reset()
             self.percolate(p)
             if self.is_path():
@@ -42,9 +45,10 @@ class Percolation(object):
         return n_True / iter
 
     def simulate_centre(self, iter, p):
-        self.reset()
+        # simulates the value of G_n(p) using a given number of iterations
         n_True = 0
         for i in range(iter):
+            # reset the lattice, create a random percolation and increment if there is a path
             self.reset()
             self.percolate(p)
             if self.is_centre_path():
@@ -52,15 +56,17 @@ class Percolation(object):
         return n_True / iter
 
     def simulate_bottom_right(self, iter, p_c, r):
-        self.reset()
+        # simulates the probability that the bottom and left sides are connected as outlined in T10
         n_True = 0
         for i in range(iter):
+            # reset the lattice, create a random percolation and increment if there is a path
             self.reset()
             self.percolate(p_c)
             if self.is_bottom_to_right_path(r):
                 n_True += 1
         return n_True / iter
 
+# class to provide additional features to a percolation
 class PercolationTools(object):
     def __init__(self, perc_obj):
         self.perc_obj = perc_obj
@@ -82,12 +88,14 @@ class PercolationTools(object):
         m = 10**dp
         xs = []
         ys = []
+        # simulate G_n(p) for each p and plot
         for i in range(0, m):
             r = self.perc_obj.simulate_centre(iter, i/m)
             xs.append(i/m)
             ys.append(r)
         plt.plot(xs, ys, "-bo")
 
+        # G is an approximate function that can be overlayed
         if plot_G == True:
             ps = np.linspace(0,1,100)
             Gs = [G(p) for p in ps]
@@ -103,6 +111,7 @@ class PercolationTools(object):
         m = 10**dp
         xs = []
         ys = []
+        # simulate F_n(p) for each p and plot
         for i in range(0, m):
             r = self.perc_obj.simulate(iter, i/m)
             xs.append(i/m)
@@ -113,6 +122,7 @@ class PercolationTools(object):
         plt.show()
 
     def find_critical_value_bs(self, iter_sim, iter_search, l=0, u=1, m=0):
+        # standard recursive binary search algorithm
         p = (u+l)/2
 
         if m >= iter_search: return p
@@ -121,6 +131,7 @@ class PercolationTools(object):
 
         print(l,p,u,r)
 
+        # if F_n(p) is less than 50/50 branch to lower half, otherwise branch to upper half
         if r < 0.5:
             return self.find_critical_value_bs(iter_sim, iter_search, p, u, m+1)
         else:
